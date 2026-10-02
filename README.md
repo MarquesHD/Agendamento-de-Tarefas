@@ -14,8 +14,8 @@ Um sistema web simples e eficiente para agendamento de tarefas, desenvolvido com
 
 Interface com barra lateral de cadastro e área principal de listagem, com filtros dinâmicos e faixas coloridas indicando a prioridade de cada tarefa.
 
-<!-- Se você tiver um print do projeto, substitua o link abaixo -->
-<!-- ![Preview do Projeto](./preview.png) -->
+<img width="1026" height="779" alt="Capturar" src="https://github.com/user-attachments/assets/51f1c2bd-5d64-46c7-a996-4749affaae23" />
+
 
 ---
 
