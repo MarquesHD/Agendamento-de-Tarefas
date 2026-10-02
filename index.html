@@ -1,0 +1,505 @@
+<html lang="pt-BR"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agendamento de Tarefas</title>
+    <style>
+        /* Reset e Estilos Globais */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f4f6f8;
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+            color: #333;
+        }
+
+        /* Container Principal */
+        .app-container {
+            display: flex;
+            width: 100%;
+            max-width: 1200px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            overflow: hidden;
+            min-height: 80vh;
+        }
+
+        /* Sidebar (Barra Lateral) */
+        .sidebar {
+            width: 320px;
+            background-color: #fcfcfc;
+            border-right: 1px solid #e0e0e0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            background-color: #00695c;
+            color: white;
+            padding: 20px;
+        }
+
+        .sidebar-header h2 {
+            font-size: 18px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sidebar-header p {
+            font-size: 12px;
+            opacity: 0.8;
+            margin-top: 4px;
+        }
+
+        .sidebar-content {
+            padding: 20px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        /* Formulário */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 6px;
+        }
+
+        .form-group input, 
+        .form-group select, 
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            outline: none;
+            transition: border 0.2s;
+        }
+
+        .form-group input:focus, 
+        .form-group select:focus, 
+        .form-group textarea:focus {
+            border-color: #00695c;
+        }
+
+        .btn-submit {
+            width: 100%;
+            background-color: #00695c;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 10px;
+        }
+
+        .btn-submit:hover {
+            background-color: #004d40;
+        }
+
+        /* Área Principal (Lista de Tarefas) */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            background-color: #fff;
+        }
+
+        .main-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .main-header h1 {
+            font-size: 20px;
+            color: #333;
+        }
+
+        /* Filtros */
+        .filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filters select, 
+        .filters input {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 13px;
+            background-color: #f9f9f9;
+        }
+
+        .filters select:focus, 
+        .filters input:focus {
+            border-color: #00695c;
+            background-color: #fff;
+        }
+
+        /* Lista de Tarefas */
+        .task-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        /* Card da Tarefa com Faixa Colorida */
+        .task-card {
+            position: relative;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 16px 16px 16px 24px; /* Padding extra na esquerda para a faixa */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            transition: transform 0.1s, box-shadow 0.1s;
+            overflow: hidden;
+        }
+
+        .task-card:hover {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+        }
+
+        /* Faixa de Prioridade */
+        .task-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 8px;
+        }
+
+        .task-card.priority-alta::before {
+            background-color: #c62828; /* Vermelho */
+        }
+
+        .task-card.priority-media::before {
+            background-color: #f57f17; /* Laranja/Amarelo */
+        }
+
+        .task-card.priority-baixa::before {
+            background-color: #2e7d32; /* Verde */
+        }
+
+        .task-info h3 {
+            font-size: 16px;
+            margin-bottom: 4px;
+            color: #222;
+        }
+
+        .task-info p {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 2px;
+        }
+
+        .task-meta {
+            display: flex;
+            gap: 15px;
+            font-size: 12px;
+            color: #888;
+            margin-top: 8px;
+        }
+
+        .task-meta span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Tag de Prioridade no texto */
+        .priority-tag {
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .priority-tag.Alta { background-color: #ffebee; color: #c62828; }
+        .priority-tag.Média { background-color: #fff8e1; color: #f57f17; }
+        .priority-tag.Baixa { background-color: #e8f5e9; color: #2e7d32; }
+
+        .btn-delete {
+            background: none;
+            border: none;
+            color: #ccc;
+            cursor: pointer;
+            font-size: 20px;
+            padding: 5px;
+            transition: color 0.2s;
+            line-height: 1;
+        }
+
+        .btn-delete:hover {
+            color: #c62828;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #999;
+            margin-top: 50px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <!-- Sidebar / Formulário -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h2>Agendamento de Tarefas</h2>
+            <p>Preencha os dados e salve localmente</p>
+        </div>
+        
+        <div class="sidebar-content">
+            <form id="task-form">
+                <div class="form-group">
+                    <label>Nome da Tarefa</label>
+                    <input type="text" id="task-name" required="" placeholder="Ex: Reunião com cliente">
+                </div>
+
+                <div class="form-group">
+                    <label>Data</label>
+                    <input type="date" id="task-date" required="">
+                </div>
+
+                <div class="form-group">
+                    <label>Horário</label>
+                    <input type="time" id="task-time" required="">
+                </div>
+
+                <div class="form-group">
+                    <label>Nível de Prioridade</label>
+                    <select id="task-priority" required="">
+                        <option value="Baixa">Baixa</option>
+                        <option value="Média" selected="">Média</option>
+                        <option value="Alta">Alta</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Descrição (Opcional)</label>
+                    <textarea id="task-desc" rows="3" placeholder="Detalhes da tarefa..."></textarea>
+                </div>
+
+                <button type="submit" class="btn-submit">Salvar Tarefa</button>
+            </form>
+        </div>
+    </aside>
+
+    <!-- Área Principal / Lista -->
+    <main class="main-content">
+        <div class="main-header">
+            <h1>Minhas Tarefas</h1>
+        </div>
+
+        <!-- Filtros -->
+        <div class="filters">
+            <select id="filter-priority">
+                <option value="Todas">Todas as Prioridades</option>
+                <option value="Alta">Alta</option>
+                <option value="Média">Média</option>
+                <option value="Baixa">Baixa</option>
+            </select>
+
+            <input type="date" id="filter-date" title="Filtrar por data">
+            
+            <select id="filter-time">
+                <option value="Todas">Qualquer Horário</option>
+                <option value="Manhã">Manhã (00:00 - 11:59)</option>
+                <option value="Tarde">Tarde (12:00 - 17:59)</option>
+                <option value="Noite">Noite (18:00 - 23:59)</option>
+            </select>
+        </div>
+
+        <!-- Lista de Tarefas -->
+        <div class="task-list" id="task-list"><div class="empty-state">Nenhuma tarefa encontrada com os filtros atuais.</div></div>
+    </main>
+</div>
+
+<script>
+    // --- 1. Gerenciamento de Dados (LocalStorage) ---
+    const STORAGE_KEY = 'agendamento_tarefas_local';
+
+    // Pega as tarefas salvas ou inicia um array vazio
+    let tasks = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+
+    // Salva no LocalStorage
+    function saveTasks() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+    }
+
+    // --- 2. Elementos do DOM ---
+    const form = document.getElementById('task-form');
+    const taskList = document.getElementById('task-list');
+    
+    // Inputs do Formulário
+    const inputName = document.getElementById('task-name');
+    const inputDate = document.getElementById('task-date');
+    const inputTime = document.getElementById('task-time');
+    const inputPriority = document.getElementById('task-priority');
+    const inputDesc = document.getElementById('task-desc');
+
+    // Inputs de Filtro
+    const filterPriority = document.getElementById('filter-priority');
+    const filterDate = document.getElementById('filter-date');
+    const filterTime = document.getElementById('filter-time');
+
+    // --- 3. Funções Principais ---
+
+    // Renderiza a lista de tarefas com base nos filtros
+    function renderTasks() {
+        const pFilter = filterPriority.value;
+        const dFilter = filterDate.value;
+        const tFilter = filterTime.value;
+
+        // Filtra o array de tarefas
+        const filteredTasks = tasks.filter(task => {
+            // Filtro de Prioridade
+            if (pFilter !== 'Todas' && task.priority !== pFilter) return false;
+            
+            // Filtro de Data
+            if (dFilter && task.date !== dFilter) return false;
+
+            // Filtro de Horário (Manhã, Tarde, Noite)
+            if (tFilter !== 'Todas') {
+                const hour = parseInt(task.time.split(':')[0]);
+                if (tFilter === 'Manhã' && (hour < 0 || hour >= 12)) return false;
+                if (tFilter === 'Tarde' && (hour < 12 || hour >= 18)) return false;
+                if (tFilter === 'Noite' && (hour < 18 || hour > 23)) return false;
+            }
+
+            return true;
+        });
+
+        // Ordena por data e hora
+        filteredTasks.sort((a, b) => {
+            const dateA = new Date(`${a.date}T${a.time}`);
+            const dateB = new Date(`${b.date}T${b.time}`);
+            return dateA - dateB;
+        });
+
+        // Limpa a lista
+        taskList.innerHTML = '';
+
+        // Se não houver tarefas
+        if (filteredTasks.length === 0) {
+            taskList.innerHTML = '<div class="empty-state">Nenhuma tarefa encontrada com os filtros atuais.</div>';
+            return;
+        }
+
+        // Cria os cards
+        filteredTasks.forEach(task => {
+            const card = document.createElement('div');
+            // Adiciona a classe de prioridade para a faixa colorida (normaliza para minúsculo e sem acento)
+            const priorityClass = task.priority.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            card.className = `task-card priority-${priorityClass}`;
+            
+            // Formata a data para exibição (DD/MM/AAAA)
+            const [year, month, day] = task.date.split('-');
+            const formattedDate = `${day}/${month}/${year}`;
+
+            card.innerHTML = `
+                <div class="task-info">
+                    <h3>${task.name}</h3>
+                    ${task.desc ? `<p>${task.desc}</p>` : ''}
+                    <div class="task-meta">
+                        <span>Data: ${formattedDate}</span>
+                        <span>Hora: ${task.time}</span>
+                        <span class="priority-tag ${task.priority}">${task.priority}</span>
+                    </div>
+                </div>
+                <button class="btn-delete" onclick="deleteTask(${task.id})" title="Excluir">&times;</button>
+            `;
+            taskList.appendChild(card);
+        });
+    }
+
+    // Adiciona nova tarefa
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const newTask = {
+            id: Date.now(),
+            name: inputName.value,
+            date: inputDate.value,
+            time: inputTime.value,
+            priority: inputPriority.value,
+            desc: inputDesc.value
+        };
+
+        tasks.push(newTask);
+        saveTasks();
+        
+        // Limpa o formulário
+        form.reset();
+        setDefaultDate();
+        
+        // Renderiza a lista atualizada
+        renderTasks();
+    });
+
+    // Excluir tarefa
+    window.deleteTask = function(id) {
+        if (confirm('Tem certeza que deseja excluir esta tarefa?')) {
+            tasks = tasks.filter(task => task.id !== id);
+            saveTasks();
+            renderTasks();
+        }
+    };
+
+    // --- 4. Inicialização e Eventos de Filtro ---
+
+    // Define a data de hoje no input de data do formulário
+    function setDefaultDate() {
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+        inputDate.value = `${yyyy}-${mm}-${dd}`;
+    }
+
+    // Adiciona eventos de 'change' aos filtros
+    filterPriority.addEventListener('change', renderTasks);
+    filterDate.addEventListener('change', renderTasks);
+    filterTime.addEventListener('change', renderTasks);
+
+    // Inicializa o sistema
+    setDefaultDate();
+    renderTasks();
+
+</script>
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v31edd6df95cf4e85bb4c19e7a9bdbcba1788362987495" integrity="sha512-iIg7k2xntmwu6/uSb5tpc/hySgZc4eoL31yB29W6tJFo2akwjPWcEqnCEdJvGexCL0KEQwVYv5BlowfhVz26hg==" data-cf-beacon="{&quot;version&quot;:&quot;2024.11.0&quot;,&quot;token&quot;:&quot;e3c1c9af36de41759418005494a48906&quot;,&quot;r&quot;:1,&quot;spa&quot;:2}" crossorigin="anonymous"></script>
+
+</body></html>
